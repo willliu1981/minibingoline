@@ -14,6 +14,8 @@ import com.model.player.UserPlayer;
 
 import javax.swing.JList;
 import javax.swing.AbstractListModel;
+import javax.swing.DefaultListModel;
+
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +23,22 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.CardLayout;
 
 public class MainView extends JFrame {
+	private static String CardLayout_topbar_set = "cardlayout_topbar_set";
+	private static String CardLayout_topbar_start = "cardlayout_topbar_start";
+
 	MainViewControl viewControl;;
-	GameControl gameControl;;
+	GameControl gameControl;
 	private JPanel contentPane;
-	private JTextField textField_computerPlayerCount;
 	private JList<Player> list_playerList;
+	private JPanel panel_set;
+	private JTextField textField_addComputerPlayerCount;
+	private JButton btnNewButton;
+	private JPanel panel_start;
+	private JPanel panel_topbar;
+	private JButton btnNewButton_1;
 
 	/**
 	 * Launch the application.
@@ -69,6 +80,47 @@ public class MainView extends JFrame {
 		setContentPane(contentPane);
 
 		/*
+		 * north border:topbar
+		 */
+		panel_topbar = new JPanel();
+		contentPane.add(panel_topbar, BorderLayout.NORTH);
+		panel_topbar.setLayout(new CardLayout(0, 0));
+
+		panel_set = new JPanel();
+		panel_topbar.add(panel_set, CardLayout_topbar_set);
+
+		textField_addComputerPlayerCount = new JTextField();
+		textField_addComputerPlayerCount.setColumns(10);
+		panel_set.add(textField_addComputerPlayerCount);
+
+		btnNewButton = new JButton("Add");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int count=0;
+				try {
+					count =Integer.valueOf(textField_addComputerPlayerCount.getText());
+				}catch(NumberFormatException ex) {
+					count=0;
+				}
+				DefaultListModel<Player> model = new DefaultListModel<>();
+				gameControl.reCreateComputerPlayer(count);
+				gameControl.getPlayers().stream().forEach(x -> {
+					model.addElement(x);
+				});
+				list_playerList.setModel(model);
+				((CardLayout) panel_topbar.getLayout()).show(panel_topbar, CardLayout_topbar_start);
+			}
+		});
+		btnNewButton.setToolTipText("add computer players");
+		panel_set.add(btnNewButton);
+		panel_start = new JPanel();
+		panel_topbar.add(panel_start, CardLayout_topbar_start);
+
+		btnNewButton_1 = new JButton("Start");
+		btnNewButton_1.setToolTipText("start game");
+		panel_start.add(btnNewButton_1);
+
+		/*
 		 * west border: list
 		 */
 		list_playerList = new JList<>();
@@ -89,28 +141,6 @@ public class MainView extends JFrame {
 		});
 		contentPane.add(list_playerList, BorderLayout.WEST);
 
-		JPanel panel = new JPanel();
-		contentPane.add(panel, BorderLayout.NORTH);
-
-		textField_computerPlayerCount = new JTextField();
-		panel.add(textField_computerPlayerCount);
-		textField_computerPlayerCount.setColumns(10);
-
-		JButton btnNewButton = new JButton("Add");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				int count = 0;
-				try {
-					count = Integer.valueOf(textField_computerPlayerCount.getText());
-				} catch (NumberFormatException ex) {
-					count = 0;
-				}
-				gameControl.reCreateComputerPlayer(count);
-				list_playerList.updateUI();
-			}
-		});
-		btnNewButton.setToolTipText("add computer players");
-		panel.add(btnNewButton);
 	}
 
 }
